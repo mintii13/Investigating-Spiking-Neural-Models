@@ -38,7 +38,7 @@ tensorboard
 | Methods                  | Spike Neuron Model | Batch size | Timestep | $u_{th}$ | $V_{reset}$  | Beta ($\beta$)| Accuracy |
 |--------------------------|--------------------|------------|----------|----------|--------------|---------------|----------|
 | Spike-driven Transformer | LIF                | 64         | 4        | 1        | 0            | 1/2           | 94.34    |
-| Spike-driven Transformer | IF hard reset      | 64         | 4        | 1        | 0            | 1/2           | 94.34    |
+| Spike-driven Transformer | IF hard reset      | 64         | 4        | 1        | 0            |               | 94.34    |
 | Spike-driven Transformer | IF soft reset      | 64         | 4        | 1        | -            | -             | **94.38**    |
 
 ## Train & Test
