@@ -1,0 +1,17 @@
+from spikingjelly.clock_driven import neuron
+import torch
+
+# Khởi tạo MultiStepIFNode với soft reset
+multi_step_if_node = neuron.MultiStepIFNode(v_threshold=1.0, v_reset=None)
+
+# Đặt điện thế ban đầu
+multi_step_if_node.v = 0.0
+
+# Tạo dữ liệu đầu vào với shape (T, *)
+x_seq = torch.tensor([[0.5], [1.2], [0.9], [2.2], [0.1]])  # Shape (T=5, B=1)
+
+# Chạy forward pass
+spike_seq = multi_step_if_node(x_seq)
+
+print("Spike sequence:", spike_seq)
+print("Voltage after reset:", multi_step_if_node.v)

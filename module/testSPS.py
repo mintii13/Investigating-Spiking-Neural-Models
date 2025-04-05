@@ -1,0 +1,224 @@
+import torch
+import torch.nn as nn
+from spikingjelly.clock_driven.neuron import (
+    MultiStepLIFNode,
+    MultiStepParametricLIFNode,
+)
+from timm.models.layers import to_2tuple
+
+# Định nghĩa lớp MS_SPS
+class MS_SPS(nn.Module):
+    def __init__(
+        self,
+        img_size_h=128,
+        img_size_w=128,
+        patch_size=4,
+        in_channels=2,
+        embed_dims=256,
+        pooling_stat="1111",
+        spike_mode="lif",
+    ):
+        super().__init__()
+        self.image_size = [img_size_h, img_size_w]
+        patch_size = to_2tuple(patch_size)
+        self.patch_size = patch_size
+        self.pooling_stat = pooling_stat
+
+        self.C = in_channels
+        self.H, self.W = (
+            self.image_size[0] // patch_size[0],
+            self.image_size[1] // patch_size[1],
+        )
+        self.num_patches = self.H * self.W
+        self.proj_conv = nn.Conv2d(
+            in_channels, embed_dims // 8, kernel_size=3, stride=1, padding=1, bias=False
+        )
+        self.proj_bn = nn.BatchNorm2d(embed_dims // 8)
+        if spike_mode == "lif":
+            self.proj_lif = MultiStepLIFNode(tau=2.0, detach_reset=True, backend="cupy")
+        elif spike_mode == "plif":
+            self.proj_lif = MultiStepParametricLIFNode(
+                init_tau=2.0, detach_reset=True, backend="cupy"
+            )
+        self.maxpool = nn.MaxPool2d(
+            kernel_size=3, stride=2, padding=1, dilation=1, ceil_mode=False
+        )
+
+        self.proj_conv1 = nn.Conv2d(
+            embed_dims // 8,
+            embed_dims // 4,
+            kernel_size=3,
+            stride=1,
+            padding=1,
+            bias=False,
+        )
+        self.proj_bn1 = nn.BatchNorm2d(embed_dims // 4)
+        if spike_mode == "lif":
+            self.proj_lif1 = MultiStepLIFNode(
+                tau=2.0, detach_reset=True, backend="cupy"
+            )
+        elif spike_mode == "plif":
+            self.proj_lif1 = MultiStepParametricLIFNode(
+                init_tau=2.0, detach_reset=True, backend="cupy"
+            )
+        self.maxpool1 = nn.MaxPool2d(
+            kernel_size=3, stride=2, padding=1, dilation=1, ceil_mode=False
+        )
+
+        self.proj_conv2 = nn.Conv2d(
+            embed_dims // 4,
+            embed_dims // 2,
+            kernel_size=3,
+            stride=1,
+            padding=1,
+            bias=False,
+        )
+        self.proj_bn2 = nn.BatchNorm2d(embed_dims // 2)
+        if spike_mode == "lif":
+            self.proj_lif2 = MultiStepLIFNode(
+                tau=2.0, detach_reset=True, backend="cupy"
+            )
+        elif spike_mode == "plif":
+            self.proj_lif2 = MultiStepParametricLIFNode(
+                init_tau=2.0, detach_reset=True, backend="cupy"
+            )
+        self.maxpool2 = nn.MaxPool2d(
+            kernel_size=3, stride=2, padding=1, dilation=1, ceil_mode=False
+        )
+
+        self.proj_conv3 = nn.Conv2d(
+            embed_dims // 2, embed_dims, kernel_size=3, stride=1, padding=1, bias=False
+        )
+        self.proj_bn3 = nn.BatchNorm2d(embed_dims)
+        if spike_mode == "lif":
+            self.proj_lif3 = MultiStepLIFNode(
+                tau=2.0, detach_reset=True, backend="cupy"
+            )
+        elif spike_mode == "plif":
+            self.proj_lif3 = MultiStepParametricLIFNode(
+                init_tau=2.0, detach_reset=True, backend="cupy"
+            )
+        self.maxpool3 = nn.MaxPool2d(
+            kernel_size=3, stride=2, padding=1, dilation=1, ceil_mode=False
+        )
+
+        self.rpe_conv = nn.Conv2d(
+            embed_dims, embed_dims, kernel_size=3, stride=1, padding=1, bias=False
+        )
+        self.rpe_bn = nn.BatchNorm2d(embed_dims)
+        if spike_mode == "lif":
+            self.rpe_lif = MultiStepLIFNode(tau=2.0, detach_reset=True, backend="cupy")
+        elif spike_mode == "plif":
+            self.rpe_lif = MultiStepParametricLIFNode(
+                init_tau=2.0, detach_reset=True, backend="cupy"
+            )
+
+    def forward(self, x, hook=None):
+        T, B, _, H, W = x.shape
+        ratio = 1
+        print("\nInput shape:", x.shape)
+        print("Input data:\n", x)
+
+        # Step 1: Conv + BN + LIF
+        x = self.proj_conv(x.flatten(0, 1))
+        print("\nAfter proj_conv1:", x.shape)
+        x = self.proj_bn(x).reshape(T, B, -1, H // ratio, W // ratio).contiguous()
+        print("After proj_bn1:", x.shape)
+        x = self.proj_lif(x)
+        print("After proj_lif1:", x.shape)
+
+        # Step 2: MaxPool (optional)
+        x = x.flatten(0, 1).contiguous()
+        if self.pooling_stat[0] == "1":
+            x = self.maxpool(x)
+            ratio *= 2
+            print("After maxpool1:", x.shape)
+
+        # Step 3: Conv1 + BN1 + LIF1
+        x = self.proj_conv1(x)
+        print("\nAfter proj_conv2:", x.shape)
+        x = self.proj_bn1(x).reshape(T, B, -1, H // ratio, W // ratio).contiguous()
+        print("After proj_bn2:", x.shape)
+        x = self.proj_lif1(x)
+        print("After proj_lif2:", x.shape)
+
+        # Step 4: MaxPool1 (optional)
+        x = x.flatten(0, 1).contiguous()
+        if self.pooling_stat[1] == "1":
+            x = self.maxpool1(x)
+            ratio *= 2
+            print("After maxpool2:", x.shape)
+
+        # Step 5: Conv2 + BN2 + LIF2
+        x = self.proj_conv2(x)
+        print("\nAfter proj_conv3:", x.shape)
+        x = self.proj_bn2(x).reshape(T, B, -1, H // ratio, W // ratio).contiguous()
+        print("After proj_bn3:", x.shape)
+        x = self.proj_lif2(x)
+        print("After proj_lif3:", x.shape)
+
+        # Step 6: MaxPool2 (optional)
+        x = x.flatten(0, 1).contiguous()
+        if self.pooling_stat[2] == "1":
+            x = self.maxpool2(x)
+            ratio *= 2
+            print("After maxpool3:", x.shape)
+
+        # Step 7: Conv3 + BN3
+        x = self.proj_conv3(x)
+        print("\nAfter proj_conv4:", x.shape)
+        x = self.proj_bn3(x)
+        print("After proj_bn4:", x.shape)
+
+        # Step 8: MaxPool3 (optional)
+        if self.pooling_stat[3] == "1":
+            x = self.maxpool3(x)
+            ratio *= 2
+            print("After maxpool4:", x.shape)
+
+        # Step 9: LIF3 + Residual connection
+        x_feat = x
+        x = self.proj_lif3(x.reshape(T, B, -1, H // ratio, W // ratio).contiguous())
+        print("\nAfter rpe_lif:", x.shape)
+        x = x.flatten(0, 1).contiguous()
+
+        # Step 10: RPE Conv + BN
+        x = self.rpe_conv(x)
+        print("After rpe_conv:", x.shape)
+        x = self.rpe_bn(x)
+        print("After rpe_bn:", x.shape)
+
+        # Final residual addition
+        x = (x + x_feat).reshape(T, B, -1, H // ratio, W // ratio).contiguous()
+        print("\nFinal output before patch splitting:", x.shape)
+
+        H, W = H // self.patch_size[0], W // self.patch_size[1]
+        return x, (H, W), hook
+
+
+# Khởi tạo module MS_SPS
+sps = MS_SPS(
+    img_size_h=128,
+    img_size_w=128,
+    patch_size=16,
+    in_channels=3,
+    embed_dims=256,
+    pooling_stat="1111",
+    spike_mode="lif",
+)
+
+# Di chuyển model sang GPU nếu có
+device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
+sps.to(device)
+
+# Tạo input tensor giả lập với giá trị pixel từ 0 đến 255
+# Kích thước: (T, B, C, H, W) = (4, 2, 3, 128, 128)
+input_tensor = torch.randint(0, 256, (4, 2, 3, 128, 128), dtype=torch.float32).to(device)
+
+# Forward qua SPS
+output, (H, W), hook = sps(input_tensor)
+
+
+print("Final Output data:\n", output)
+print("Final Output shape:", output.shape)
+print("Spatial dimensions after patch splitting: H =", H, ", W =", W)
