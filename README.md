@@ -1,7 +1,7 @@
 # Unlocking the Potential of Spike-based Transformer Architecture: Investigating Spiking Neural Models for Classification Task
 
-Nguyen Minh Tri, Huynh Cong Viet Ngu
-FPT University, Ho Chi Minh Campus, Vietnam
+Nguyen Minh Tri, Huynh Cong Viet Ngu  
+FPT University, Ho Chi Minh Campus, Vietnam  
 minhtringuyen130205@gmail.com, nguhcv@fe.edu.vn
 ---
 
@@ -38,8 +38,8 @@ tensorboard
 | Methods                  | Spike Neuron Model | Batch size | Timestep | $u_{th}$ | $V_{reset}$  | Beta ($\beta$)| Accuracy |
 |--------------------------|--------------------|------------|----------|----------|--------------|---------------|----------|
 | Spike-driven Transformer | LIF                | 64         | 4        | 1        | 0            | 1/2           | 94.34    |
-|                          | IF hard reset      | 64         | 4        | 1        | -            | -             | 94.34    |
-|                          | IF soft reset      | 64         | 4        | -        | -            | -             | 94.38    |
+| Spike-driven Transformer | IF hard reset      | 64         | 4        | 1        | 0            | 1/2           | 94.34    |
+| Spike-driven Transformer | IF soft reset      | 64         | 4        | 1        | -            | -             | **94.38**    |
 
 ## Train & Test
 
