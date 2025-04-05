@@ -25,10 +25,10 @@ carefully designing spiking neuron models to balance biological realism and comp
 
 ```python3
 timm == 0.6.12
-1.10.0 <= pytorch < 2.0.0
-cupy
+pytorch == 2.4.1+cu121
+cupy == 12.3.0
 spikingjelly == 0.0.0.0.12
-tensorboard
+tensorboard == 2.14.0
 ```
 
 > !!! Please install the spikingjelly and tensorboard correctly before raising issues about requirements. !!!
