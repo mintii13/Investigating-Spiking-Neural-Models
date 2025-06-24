@@ -126,7 +126,7 @@ config_parser = parser = argparse.ArgumentParser(
 parser.add_argument(
     "-c",
     "--config",
-    default="conf/cifar10/2_256_300E_t4.yml",
+    default="imagenet.yml",
     type=str,
     metavar="FILE",
     help="YAML config file specifying default arguments",

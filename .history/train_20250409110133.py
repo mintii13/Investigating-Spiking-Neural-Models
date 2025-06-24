@@ -126,7 +126,7 @@ config_parser = parser = argparse.ArgumentParser(
 parser.add_argument(
     "-c",
     "--config",
-    default="conf/cifar10/2_256_300E_t4.yml",
+    default="imagenet.yml",
     type=str,
     metavar="FILE",
     help="YAML config file specifying default arguments",
@@ -231,7 +231,7 @@ parser.add_argument(
 )
 parser.add_argument(
     "--resume",
-    default="",
+    default="./output/train/20250408-202345-sdt-data-cifar10-t-4-spike-if_soft/last.pth.tar",
     type=str,
     metavar="PATH",
     help="Resume full model and optimizer state from checkpoint (default: none)",
@@ -245,7 +245,7 @@ parser.add_argument(
 parser.add_argument(
     "--num-classes",
     type=int,
-    default=10,
+    default=1000,
     metavar="N",
     help="number of label classes (Model default if None)",
 )

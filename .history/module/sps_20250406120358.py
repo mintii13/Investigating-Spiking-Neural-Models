@@ -44,10 +44,10 @@ class MS_SPS(nn.Module):
             )
         if spike_mode == "if":
           print("spike_mode = if_hard")
-          self.proj_lif = MultiStepIFNode(v_threshold=1.2, v_reset=v_reset, detach_reset=True, backend="cupy")
+          self.proj_lif = MultiStepIFNode(v_threshold=0.8, v_reset=v_reset, detach_reset=True, backend="cupy")
         elif spike_mode == "if_soft":
           print("spike_mode = if_soft")
-          self.proj_lif = MultiStepIFNode(v_threshold=1.0, v_reset=None, detach_reset=True, backend="cupy")
+          self.proj_lif = MultiStepIFNode(v_reset=None, detach_reset=True, backend="cupy")
           
         self.maxpool = nn.MaxPool2d(
             kernel_size=3, stride=2, padding=1, dilation=1, ceil_mode=False
@@ -71,9 +71,9 @@ class MS_SPS(nn.Module):
                 init_tau=2.0, detach_reset=True, backend="cupy"
             )
         if spike_mode == "if":
-          self.proj_lif1 = MultiStepIFNode(v_threshold=1.2, v_reset=v_reset, detach_reset=True, backend="cupy")
+          self.proj_lif1 = MultiStepIFNode(v_threshold=0.8, v_reset=v_reset, detach_reset=True, backend="cupy")
         elif spike_mode == "if_soft":
-          self.proj_lif1 = MultiStepIFNode(v_threshold=1.0, v_reset=None, detach_reset=True, backend="cupy")
+          self.proj_lif1 = MultiStepIFNode(v_reset=None, detach_reset=True, backend="cupy")
           
         self.maxpool1 = nn.MaxPool2d(
             kernel_size=3, stride=2, padding=1, dilation=1, ceil_mode=False
@@ -97,9 +97,9 @@ class MS_SPS(nn.Module):
                 init_tau=2.0, detach_reset=True, backend="cupy"
             )
         if spike_mode == "if":
-          self.proj_lif2 = MultiStepIFNode(v_threshold=1.2, v_reset=v_reset, detach_reset=True, backend="cupy")
+          self.proj_lif2 = MultiStepIFNode(v_threshold=0.8, v_reset=v_reset, detach_reset=True, backend="cupy")
         elif spike_mode == "if_soft":
-          self.proj_lif2 = MultiStepIFNode(v_threshold=1.0, v_reset=None, detach_reset=True, backend="cupy")
+          self.proj_lif2 = MultiStepIFNode(v_reset=None, detach_reset=True, backend="cupy")
 
         self.maxpool2 = nn.MaxPool2d(
             kernel_size=3, stride=2, padding=1, dilation=1, ceil_mode=False
@@ -118,9 +118,9 @@ class MS_SPS(nn.Module):
                 init_tau=2.0, detach_reset=True, backend="cupy"
             )
         if spike_mode == "if":
-          self.proj_lif3 = MultiStepIFNode(v_threshold=1.2, v_reset=v_reset, detach_reset=True, backend="cupy")
+          self.proj_lif3 = MultiStepIFNode(v_threshold=0.8, v_reset=v_reset, detach_reset=True, backend="cupy")
         elif spike_mode == "if_soft":
-          self.proj_lif3 = MultiStepIFNode(v_threshold=1.0, v_reset=None, detach_reset=True, backend="cupy")
+          self.proj_lif3 = MultiStepIFNode(v_reset=None, detach_reset=True, backend="cupy")
           
         self.maxpool3 = nn.MaxPool2d(
             kernel_size=3, stride=2, padding=1, dilation=1, ceil_mode=False
@@ -137,9 +137,9 @@ class MS_SPS(nn.Module):
                 init_tau=2.0, detach_reset=True, backend="cupy"
             )
         if spike_mode == "if":
-          self.rpe_lif = MultiStepIFNode(v_threshold=1.2, v_reset=v_reset, detach_reset=True, backend="cupy")
+          self.rpe_lif = MultiStepIFNode(v_threshold=0.8, v_reset=v_reset, detach_reset=True, backend="cupy")
         elif spike_mode == "if_soft":
-          self.rpe_lif = MultiStepIFNode(v_threshold=1.0, v_reset=None, detach_reset=True, backend="cupy")
+          self.rpe_lif = MultiStepIFNode(v_reset=None, detach_reset=True, backend="cupy")
           
 
     def forward(self, x, hook=None):

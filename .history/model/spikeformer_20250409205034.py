@@ -100,7 +100,7 @@ class SpikeDrivenTransformer(nn.Module):
         elif spike_mode == "if":
             self.head_lif = MultiStepIFNode(v_threshold=1.2, v_reset=v_reset, detach_reset=True, backend="cupy")
         elif spike_mode == "if_soft":
-            self.head_lif = MultiStepIFNode(v_threshold=1.0, v_reset=None, detach_reset=True, backend="cupy")
+            self.head_lif = MultiStepIFNode(v_threshold=1 , v_reset=None, detach_reset=True, backend="cupy")
         self.head = (
             nn.Linear(embed_dims, num_classes) if num_classes > 0 else nn.Identity()
         )

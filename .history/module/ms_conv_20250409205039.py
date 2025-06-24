@@ -45,8 +45,8 @@ class MS_MLP_Conv(nn.Module):
             self.fc1_lif = MultiStepIFNode(v_threshold=1.2, v_reset=v_reset, detach_reset=True, backend="cupy")
             self.fc2_lif = MultiStepIFNode(v_threshold=1.2, v_reset=v_reset, detach_reset=True, backend="cupy")
         elif spike_mode == "if_soft":
-            self.fc1_lif = MultiStepIFNode(v_threshold=1.0, v_reset=None, detach_reset=True, backend="cupy")
-            self.fc2_lif = MultiStepIFNode(v_threshold=1.0, v_reset=None, detach_reset=True, backend="cupy")
+            self.fc1_lif = MultiStepIFNode(v_threshold=1 , v_reset=None, detach_reset=True, backend="cupy")
+            self.fc2_lif = MultiStepIFNode(v_threshold=1 , v_reset=None, detach_reset=True, backend="cupy")
 
         self.fc2_conv = nn.Conv2d(
             hidden_features, out_features, kernel_size=1, stride=1
@@ -125,10 +125,10 @@ class MS_SSA_Conv(nn.Module):
                 v_reset=v_reset, v_threshold=0.5, detach_reset=True, backend="cupy"
             )
         elif spike_mode == "if_soft":
-            self.shortcut_lif = MultiStepIFNode(v_threshold=1.0, v_reset=None, detach_reset=True, backend="cupy")
-            self.q_lif = MultiStepIFNode(v_threshold=1.0, v_reset=None, detach_reset=True, backend="cupy")
-            self.k_lif = MultiStepIFNode(v_threshold=1.0, v_reset=None, detach_reset=True, backend="cupy")
-            self.v_lif = MultiStepIFNode(v_threshold=1.0, v_reset=None, detach_reset=True, backend="cupy")
+            self.shortcut_lif = MultiStepIFNode(v_threshold=1 , v_reset=None, detach_reset=True, backend="cupy")
+            self.q_lif = MultiStepIFNode(v_threshold=1 , v_reset=None, detach_reset=True, backend="cupy")
+            self.k_lif = MultiStepIFNode(v_threshold=1 , v_reset=None, detach_reset=True, backend="cupy")
+            self.v_lif = MultiStepIFNode(v_threshold=1 , v_reset=None, detach_reset=True, backend="cupy")
             self.attn_lif = MultiStepIFNode(
                 v_reset=None, v_threshold=0.5, detach_reset=True, backend="cupy"
             )
