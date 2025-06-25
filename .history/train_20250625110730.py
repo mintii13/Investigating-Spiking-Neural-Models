@@ -882,6 +882,7 @@ parser.add_argument(
     help="Type of encoder to use (default: none)",
 )
 
+
 _logger = logging.getLogger("train")
 stream_handler = logging.StreamHandler()
 format_str = "%(asctime)s %(levelname)s: %(message)s"
@@ -906,9 +907,11 @@ def _parse_args():
     args_text = yaml.safe_dump(args.__dict__, default_flow_style=False)
     return args, args_text
 
+
 def main():
     setup_default_logging()
     args, args_text = _parse_args()
+
     if args.log_wandb:
         if has_wandb:
             wandb.init(project=args.experiment, config=args)
@@ -992,7 +995,6 @@ def main():
         spike_mode=args.spike_mode,
         dvs_mode=args.dvs_mode,
         TET=args.TET,
-        rpe_mode=args.rpe_mode
     )
     if args.local_rank == 0:
         _logger.info(f"Creating model {args.model}")
@@ -1027,7 +1029,6 @@ def main():
                     "data-" + args.dataset.split("/")[-1],
                     f"t-{args.time_steps}",
                     f"spike-{args.spike_mode}",
-                    f"rpe-{args.rpe_mode}",
                 ]
             )
         output_dir = get_outdir(

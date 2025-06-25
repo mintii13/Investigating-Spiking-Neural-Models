@@ -39,7 +39,7 @@ class SpikeDrivenTransformer(nn.Module):
         pooling_stat="1111",
         attn_mode="direct_xor",
         spike_mode="if_soft",
-        rpe_mode="dilated",  # Add rpe_mode parameter
+        # rpe_mode="dilated",  # Add rpe_mode parameter
         get_embed=False,
         dvs_mode=False,
         TET=False,
@@ -55,7 +55,7 @@ class SpikeDrivenTransformer(nn.Module):
         self.T = T
         self.TET = TET
         self.dvs = dvs_mode
-        self.rpe_mode = rpe_mode
+        # self.rpe_mode = rpe_mode
 
         # Log all configuration parameters
         self._log_config(locals())
@@ -72,7 +72,7 @@ class SpikeDrivenTransformer(nn.Module):
             embed_dims=embed_dims,
             pooling_stat=pooling_stat,
             spike_mode=spike_mode,
-            rpe_mode=rpe_mode,  # Pass rpe_mode to SPS
+            # rpe_mode=rpe_mode,  # Pass rpe_mode to SPS
         )
 
         blocks = nn.ModuleList(

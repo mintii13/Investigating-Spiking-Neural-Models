@@ -237,7 +237,7 @@ parser.add_argument(
 )
 parser.add_argument(
     "--resume",
-    default="",
+    default="output/train/20250625-105130-sdt-data-cifar10-t-4-spike-if_soft/last.pth.tar",
     type=str,
     metavar="PATH",
     help="Resume full model and optimizer state from checkpoint (default: none)",
@@ -906,9 +906,30 @@ def _parse_args():
     args_text = yaml.safe_dump(args.__dict__, default_flow_style=False)
     return args, args_text
 
+def log_training_config(args):
+    """Log comprehensive training configuration"""
+    _logger.info("=" * 80)
+    _logger.info("TRAINING CONFIGURATION")
+    _logger.info("=" * 80)
+    _logger.info(f"Model: {args.model}")
+    _logger.info(f"Dataset: {args.dataset}")
+    _logger.info(f"Spike mode: {args.spike_mode}")
+    _logger.info(f"RPE mode: {args.rpe_mode}")
+    _logger.info(f"Time steps: {args.time_steps}")
+    _logger.info(f"Batch size: {args.batch_size}")
+    _logger.info(f"Learning rate: {args.lr}")
+    _logger.info(f"Epochs: {args.epochs}")
+    _logger.info(f"Dimension: {args.dim}")
+    _logger.info(f"Layers: {args.layer}")
+    _logger.info(f"Pooling stat: {args.pooling_stat}")
+    if hasattr(args, 'TET') and args.TET:
+        _logger.info(f"TET enabled - means: {args.TET_means}, lamb: {args.TET_lamb}")
+    _logger.info("=" * 80)
+
 def main():
     setup_default_logging()
     args, args_text = _parse_args()
+    log_training_config(args)
     if args.log_wandb:
         if has_wandb:
             wandb.init(project=args.experiment, config=args)
@@ -992,7 +1013,6 @@ def main():
         spike_mode=args.spike_mode,
         dvs_mode=args.dvs_mode,
         TET=args.TET,
-        rpe_mode=args.rpe_mode
     )
     if args.local_rank == 0:
         _logger.info(f"Creating model {args.model}")
@@ -1027,7 +1047,6 @@ def main():
                     "data-" + args.dataset.split("/")[-1],
                     f"t-{args.time_steps}",
                     f"spike-{args.spike_mode}",
-                    f"rpe-{args.rpe_mode}",
                 ]
             )
         output_dir = get_outdir(

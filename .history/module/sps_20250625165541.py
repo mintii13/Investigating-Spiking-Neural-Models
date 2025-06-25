@@ -21,14 +21,14 @@ class MS_SPS(nn.Module):
         embed_dims=256,
         pooling_stat="1111",
         spike_mode="if_learnable",
-        rpe_mode="dilated",  # Add rpe_mode parameter
+        # rpe_mode="dilated",  # Add rpe_mode parameter
     ):
         super().__init__()
         self.image_size = [img_size_h, img_size_w]
         patch_size = to_2tuple(patch_size)
         self.patch_size = patch_size
         self.pooling_stat = pooling_stat
-        self.rpe_mode = rpe_mode  # Store rpe_mode
+        # self.rpe_mode = rpe_mode  # Store rpe_mode
 
         self.C = in_channels
         self.H, self.W = (
@@ -148,7 +148,7 @@ class MS_SPS(nn.Module):
         self.rpe_conv = nn.Conv2d(
             embed_dims, embed_dims, kernel_size=3, stride=1, padding=1, bias=False
         )
-        
+        rpe_mode = "linear"
         if rpe_mode in ["linear", "all"]:
             self.rpe_linear = nn.Linear(embed_dims, embed_dims, bias=False)
         if rpe_mode in ["sinusoidal", "all"]:
@@ -174,7 +174,9 @@ class MS_SPS(nn.Module):
             self.rpe_lif = MultiStepLearnableIFNode(init_threshold=1.0, v_reset=None, detach_reset=True)
 
         # Log RPE mode configuration
-        print(f"RPE mode = {self.rpe_mode}")
+        # print(f"RPE mode = {self.rpe_mode}")
+        print(f"RPE mode = {rpe_mode}")
+
 
     def forward(self, x, hook=None):
         T, B, _, H, W = x.shape
@@ -220,19 +222,19 @@ class MS_SPS(nn.Module):
         if hook is not None:
             hook[self._get_name() + "_lif3"] = x.detach()
         x = x.flatten(0, 1).contiguous()
-        
+        rpe_mode = "linear"
         # ========== RPE SWITCH CASE - Now configurable ==========
-        if self.rpe_mode == "conv":
+        if rpe_mode == "conv":
             # Option 0: Original Conv2D
             x = self.rpe_conv(x)
             
-        elif self.rpe_mode == "linear":
+        elif rpe_mode == "linear":
             # Option 1: Linear
             TB, C, H_cur, W_cur = x.shape
             x_linear = x.view(TB, C, -1).transpose(1, 2)  # [TB, H*W, C]
             x = self.rpe_linear(x_linear).transpose(1, 2).view(TB, C, H_cur, W_cur)
             
-        elif self.rpe_mode == "sinusoidal":
+        elif rpe_mode == "sinusoidal":
             # Option 2: Sinusoidal
             TB, C, H_cur, W_cur = x.shape
             pe = get_sinusoidal_encoding(H_cur, W_cur, C, x.device)
@@ -241,7 +243,7 @@ class MS_SPS(nn.Module):
             print(f"Sinusoidal PE applied - Input shape: {x.shape} | PE scale: {self.rpe_scale.item():.6f}")
             print(f"PE - mean: {pe.mean().item():.6f} | max: {pe.max().item():.6f} | min: {pe.min().item():.6f}")
             
-        elif self.rpe_mode == "learnable":
+        elif rpe_mode == "learnable":
             # Option 3: Learnable Position
             TB, C, H_cur, W_cur = x.shape
             pos_h = self.rpe_pos_embed_h[:, :, :H_cur, :].expand(-1, -1, -1, W_cur)  # [1, C//2, H, W]
@@ -252,7 +254,7 @@ class MS_SPS(nn.Module):
             print(f"Learnable PE applied - Used spatial size: H={H_cur}, W={W_cur}")
             print(f"PE - mean: {pos_embed.mean().item():.6f} | max: {pos_embed.max().item():.6f} | min: {pos_embed.min().item():.6f}")
             
-        elif self.rpe_mode == "dilated":
+        elif rpe_mode == "dilated":
             # Option 4: Dilated Conv
             x = self.rpe_dilated(x)
             

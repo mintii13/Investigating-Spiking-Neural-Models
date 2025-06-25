@@ -72,7 +72,7 @@ class SpikeDrivenTransformer(nn.Module):
             embed_dims=embed_dims,
             pooling_stat=pooling_stat,
             spike_mode=spike_mode,
-            rpe_mode=rpe_mode,  # Pass rpe_mode to SPS
+            # rpe_mode=rpe_mode,  # Pass rpe_mode to SPS
         )
 
         blocks = nn.ModuleList(

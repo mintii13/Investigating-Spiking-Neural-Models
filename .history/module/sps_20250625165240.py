@@ -21,14 +21,14 @@ class MS_SPS(nn.Module):
         embed_dims=256,
         pooling_stat="1111",
         spike_mode="if_learnable",
-        rpe_mode="dilated",  # Add rpe_mode parameter
+        # rpe_mode="dilated",  # Add rpe_mode parameter
     ):
         super().__init__()
         self.image_size = [img_size_h, img_size_w]
         patch_size = to_2tuple(patch_size)
         self.patch_size = patch_size
         self.pooling_stat = pooling_stat
-        self.rpe_mode = rpe_mode  # Store rpe_mode
+        # self.rpe_mode = rpe_mode  # Store rpe_mode
 
         self.C = in_channels
         self.H, self.W = (
@@ -148,7 +148,7 @@ class MS_SPS(nn.Module):
         self.rpe_conv = nn.Conv2d(
             embed_dims, embed_dims, kernel_size=3, stride=1, padding=1, bias=False
         )
-        
+        rpe_mode = "linear"
         if rpe_mode in ["linear", "all"]:
             self.rpe_linear = nn.Linear(embed_dims, embed_dims, bias=False)
         if rpe_mode in ["sinusoidal", "all"]:
@@ -174,7 +174,9 @@ class MS_SPS(nn.Module):
             self.rpe_lif = MultiStepLearnableIFNode(init_threshold=1.0, v_reset=None, detach_reset=True)
 
         # Log RPE mode configuration
-        print(f"RPE mode = {self.rpe_mode}")
+        # print(f"RPE mode = {self.rpe_mode}")
+        print(f"RPE mode = {rpe_mode}")
+
 
     def forward(self, x, hook=None):
         T, B, _, H, W = x.shape

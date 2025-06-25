@@ -882,6 +882,7 @@ parser.add_argument(
     help="Type of encoder to use (default: none)",
 )
 
+
 _logger = logging.getLogger("train")
 stream_handler = logging.StreamHandler()
 format_str = "%(asctime)s %(levelname)s: %(message)s"
