@@ -1,0 +1,4 @@
+Model,Avg_Spike_Rate,Est_Energy,Energy_per_Param,Inference_Time_ms,FPS,Total_Params
+LIF,0.1095,5.55e+06,2.17e+00,18.86,1696.7,"2,567,082"
+IF_Hard,0.1837,5.63e+06,2.20e+00,17.33,1846.5,"2,567,082"
+IF_Soft,0.3889,5.98e+06,2.34e+00,12.78,2503.3,"2,567,082"
