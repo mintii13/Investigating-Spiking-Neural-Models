@@ -215,7 +215,7 @@ class MS_SPS(nn.Module):
         x = x.flatten(0, 1).contiguous()
         
         # ========== RPE SWITCH CASE ==========
-        rpe_mode = "dilated" 
+        rpe_mode = "sinusoidal" 
 
         if rpe_mode == "conv":
             # Option 0: Original Conv2D
@@ -232,7 +232,7 @@ class MS_SPS(nn.Module):
             TB, C, H_cur, W_cur = x.shape
             pe = get_sinusoidal_encoding(H_cur, W_cur, C, x.device)
             pe = pe.unsqueeze(0).expand(TB, -1, -1, -1)  # [TB, C, H, W]
-            x = self.rpe_scale * pe
+            x = x + self.rpe_scale * pe
             print(f"Sinusoidal PE applied - Input shape: {x.shape} | PE scale: {self.rpe_scale.item():.6f}")
             print(f"PE - mean: {pe.mean().item():.6f} | max: {pe.max().item():.6f} | min: {pe.min().item():.6f}")
             
@@ -257,8 +257,6 @@ class MS_SPS(nn.Module):
 
         x = self.rpe_bn(x)
         x = (x + x_feat).reshape(T, B, -1, H // ratio, W // ratio).contiguous()
-        H, W = H // self.patch_size[0], W // self.patch_size[1]
-        return x, (H, W), hook
 
 
 def get_sinusoidal_encoding(H, W, C, device):

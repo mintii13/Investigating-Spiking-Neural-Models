@@ -8,7 +8,7 @@ from spikingjelly.clock_driven.neuron import (
 from .Learnable_IF import MultiStepLearnableIFNode
 
 v_reset = 0.0
-spike_mode = "if_learnable"
+spike_mode = "if_soft"
 
 class Erode(nn.Module):
     def __init__(self) -> None:

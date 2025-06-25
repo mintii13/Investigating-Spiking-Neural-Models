@@ -24,7 +24,7 @@ use_conv_as_linear: true
 pooling_stat: "0011"
 time_steps: 4
 layer: 2
-dim: 256
+dim: 512
 mlp_ratio: 4
 
 # Augmentation & regularization parameters
@@ -45,8 +45,8 @@ model-ema-decay: 0.9998
 seed: 42
 amp: False
 channels-last: False
-batch_size: 64
-val_batch_size: 64
+batch_size: 32
+val_batch_size: 32
 lr: 3e-4
 min_lr: 1e-5
 sched: cosine

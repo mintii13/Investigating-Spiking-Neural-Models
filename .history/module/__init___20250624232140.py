@@ -1,6 +1,6 @@
 from .ms_conv import MS_Block_Conv
 from .sps import MS_SPS
-from .Learnable_IF import MultiStepLearnableIFNode
+from .learnable_if import MultiStepLearnableIFNode
 
 
 __all__ = [

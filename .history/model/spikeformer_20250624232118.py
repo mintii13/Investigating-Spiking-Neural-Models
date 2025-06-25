@@ -11,7 +11,7 @@ from spikingjelly.clock_driven.neuron import (
     MultiStepIFNode,
 )
 from module import *
-from module.Learnable_IF import MultiStepLearnableIFNode
+from module.learnable_if import MultiStepLearnableIFNode
 
 v_reset = 0.0
 class SpikeDrivenTransformer(nn.Module):

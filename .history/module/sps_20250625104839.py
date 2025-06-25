@@ -215,7 +215,7 @@ class MS_SPS(nn.Module):
         x = x.flatten(0, 1).contiguous()
         
         # ========== RPE SWITCH CASE ==========
-        rpe_mode = "dilated" 
+        rpe_mode = "linear" 
 
         if rpe_mode == "conv":
             # Option 0: Original Conv2D
@@ -257,8 +257,6 @@ class MS_SPS(nn.Module):
 
         x = self.rpe_bn(x)
         x = (x + x_feat).reshape(T, B, -1, H // ratio, W // ratio).contiguous()
-        H, W = H // self.patch_size[0], W // self.patch_size[1]
-        return x, (H, W), hook
 
 
 def get_sinusoidal_encoding(H, W, C, device):

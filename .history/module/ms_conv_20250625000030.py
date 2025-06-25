@@ -52,8 +52,8 @@ class MS_MLP_Conv(nn.Module):
             self.fc1_lif = MultiStepIFNode(v_threshold=1.0, v_reset=None, detach_reset=True, backend="cupy")
             self.fc2_lif = MultiStepIFNode(v_threshold=1.0, v_reset=None, detach_reset=True, backend="cupy")
         elif spike_mode == "if_learnable":
-            self.fc1_lif = MultiStepLearnableIFNode(init_threshold=1.0, v_reset=None, detach_reset=True)
-            self.fc2_lif = MultiStepLearnableIFNode(init_threshold=1.0, v_reset=None, detach_reset=True)
+            self.fc1_lif = MultiStepLearnableIFNode(init_threshold=0.8, v_reset=None, detach_reset=True)
+            self.fc2_lif = MultiStepLearnableIFNode(init_threshold=0.8, v_reset=None, detach_reset=True)
 
         self.fc2_conv = nn.Conv2d(
             hidden_features, out_features, kernel_size=1, stride=1
@@ -148,11 +148,11 @@ class MS_SSA_Conv(nn.Module):
                 v_reset=None, v_threshold=0.5, detach_reset=True, backend="cupy"
             )
         elif spike_mode == "if_learnable":
-            self.shortcut_lif = MultiStepLearnableIFNode(init_threshold=1.0, v_reset=None, detach_reset=True)
-            self.q_lif = MultiStepLearnableIFNode(init_threshold=1.0, v_reset=None, detach_reset=True)
-            self.k_lif = MultiStepLearnableIFNode(init_threshold=1.0, v_reset=None, detach_reset=True)
-            self.v_lif = MultiStepLearnableIFNode(init_threshold=1.0, v_reset=None, detach_reset=True)
-            self.attn_lif = MultiStepLearnableIFNode(init_threshold=0.5, v_reset=None, detach_reset=True)
+            self.shortcut_lif = MultiStepLearnableIFNode(init_threshold=0.8, v_reset=None, detach_reset=True)
+            self.q_lif = MultiStepLearnableIFNode(init_threshold=0.8, v_reset=None, detach_reset=True)
+            self.k_lif = MultiStepLearnableIFNode(init_threshold=0.8, v_reset=None, detach_reset=True)
+            self.v_lif = MultiStepLearnableIFNode(init_threshold=0.8, v_reset=None, detach_reset=True)
+            self.attn_lif = MultiStepLearnableIFNode(init_threshold=0.8, v_reset=None, detach_reset=True)
             self.talking_heads_lif = MultiStepLearnableIFNode(init_threshold=0.5, v_reset=None, detach_reset=True)
         
         if spike_mode == "lif":

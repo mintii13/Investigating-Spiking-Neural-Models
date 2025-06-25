@@ -215,7 +215,7 @@ class MS_SPS(nn.Module):
         x = x.flatten(0, 1).contiguous()
         
         # ========== RPE SWITCH CASE ==========
-        rpe_mode = "dilated" 
+        rpe_mode = "linear" 
 
         if rpe_mode == "conv":
             # Option 0: Original Conv2D

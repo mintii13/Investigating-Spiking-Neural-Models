@@ -1,0 +1,4 @@
+Model,Num_Layers,Total_Neurons,Mean_Activity,Std_Activity,Sparsity,Max_Activity,Min_Activity
+LIF,19,4964352,0.1403,0.2825,0.7465,1.0000,0.0000
+IF_Hard,19,4964352,0.1365,0.2633,0.7277,1.0000,0.0000
+IF_Soft,19,4964352,0.2290,0.3720,0.6747,1.0000,0.0000

@@ -215,8 +215,8 @@ class MS_SPS(nn.Module):
         x = x.flatten(0, 1).contiguous()
         
         # ========== RPE SWITCH CASE ==========
-        rpe_mode = "dilated" 
-
+        rpe_mode = "conv"  # Change this to: "conv", "linear", "sinusoidal", "learnable", "dilated"
+        
         if rpe_mode == "conv":
             # Option 0: Original Conv2D
             x = self.rpe_conv(x)
@@ -232,9 +232,7 @@ class MS_SPS(nn.Module):
             TB, C, H_cur, W_cur = x.shape
             pe = get_sinusoidal_encoding(H_cur, W_cur, C, x.device)
             pe = pe.unsqueeze(0).expand(TB, -1, -1, -1)  # [TB, C, H, W]
-            x = self.rpe_scale * pe
-            print(f"Sinusoidal PE applied - Input shape: {x.shape} | PE scale: {self.rpe_scale.item():.6f}")
-            print(f"PE - mean: {pe.mean().item():.6f} | max: {pe.max().item():.6f} | min: {pe.min().item():.6f}")
+            x = x + self.rpe_scale * pe
             
         elif rpe_mode == "learnable":
             # Option 3: Learnable Position
@@ -244,8 +242,6 @@ class MS_SPS(nn.Module):
             pos_embed = torch.cat([pos_h, pos_w], dim=1)  # [1, C, H, W]
             pos_embed = pos_embed.expand(TB, -1, -1, -1)  # [TB, C, H, W]
             x = x + pos_embed
-            print(f"Learnable PE applied - Used spatial size: H={H_cur}, W={W_cur}")
-            print(f"PE - mean: {pos_embed.mean().item():.6f} | max: {pos_embed.max().item():.6f} | min: {pos_embed.min().item():.6f}")
             
         elif rpe_mode == "dilated":
             # Option 4: Dilated Conv
@@ -255,33 +251,29 @@ class MS_SPS(nn.Module):
             # Default: Original Conv2D
             x = self.rpe_conv(x)
 
+        # Common operations for all RPE modes
         x = self.rpe_bn(x)
         x = (x + x_feat).reshape(T, B, -1, H // ratio, W // ratio).contiguous()
+
         H, W = H // self.patch_size[0], W // self.patch_size[1]
         return x, (H, W), hook
 
 
-def get_sinusoidal_encoding(H, W, C, device):
-    """Most robust vectorized implementation"""
-    # Create position matrices
-    pos_h = torch.arange(H, dtype=torch.float32, device=device).unsqueeze(1).unsqueeze(2)  # [H, 1, 1]
-    pos_w = torch.arange(W, dtype=torch.float32, device=device).unsqueeze(0).unsqueeze(2)  # [1, W, 1]
-    
-    # Initialize PE tensor
-    pe = torch.zeros(H, W, C, dtype=torch.float32, device=device)
-    
-    # Fill first half with height-based encoding
-    for i in range(0, C // 2, 2):
-        freq = math.pow(10000.0, -i / (C // 2))
-        pe[:, :, i] = torch.sin(pos_h.squeeze(-1) * freq).expand(-1, W)
-        if i + 1 < C // 2:
-            pe[:, :, i + 1] = torch.cos(pos_h.squeeze(-1) * freq).expand(-1, W)
-    
-    # Fill second half with width-based encoding
-    for i in range(C // 2, C, 2):
-        freq = math.pow(10000.0, -(i - C // 2) / (C - C // 2))
-        pe[:, :, i] = torch.sin(pos_w.squeeze(-1) * freq).expand(H, -1)
-        if i + 1 < C:
-            pe[:, :, i + 1] = torch.cos(pos_w.squeeze(-1) * freq).expand(H, -1)
-    
-    return pe.permute(2, 0, 1)  # [C, H, W]
+    def get_sinusoidal_encoding(H, W, C, device):
+        """Generate 2D sinusoidal position encoding"""
+        pos_h = torch.arange(H, device=device).unsqueeze(1).float()
+        pos_w = torch.arange(W, device=device).unsqueeze(0).float()
+        
+        div_term = torch.exp(torch.arange(0, C//2, 2, device=device).float() * 
+                        -(math.log(10000.0) / (C//2)))
+        
+        pe_h = torch.zeros(H, W, C//2, device=device)
+        pe_h[:, :, 0::2] = torch.sin(pos_h * div_term).unsqueeze(1).expand(-1, W, -1)
+        pe_h[:, :, 1::2] = torch.cos(pos_h * div_term).unsqueeze(1).expand(-1, W, -1)
+        
+        pe_w = torch.zeros(H, W, C//2, device=device)
+        pe_w[:, :, 0::2] = torch.sin(pos_w * div_term).unsqueeze(0).expand(H, -1, -1)
+        pe_w[:, :, 1::2] = torch.cos(pos_w * div_term).unsqueeze(0).expand(H, -1, -1)
+        
+        pe = torch.cat([pe_h, pe_w], dim=-1).permute(2, 0, 1)  # [C, H, W]
+        return pe

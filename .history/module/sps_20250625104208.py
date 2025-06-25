@@ -215,7 +215,7 @@ class MS_SPS(nn.Module):
         x = x.flatten(0, 1).contiguous()
         
         # ========== RPE SWITCH CASE ==========
-        rpe_mode = "dilated" 
+        rpe_mode = "sinusoidal" 
 
         if rpe_mode == "conv":
             # Option 0: Original Conv2D
@@ -232,7 +232,7 @@ class MS_SPS(nn.Module):
             TB, C, H_cur, W_cur = x.shape
             pe = get_sinusoidal_encoding(H_cur, W_cur, C, x.device)
             pe = pe.unsqueeze(0).expand(TB, -1, -1, -1)  # [TB, C, H, W]
-            x = self.rpe_scale * pe
+            x = x + self.rpe_scale * pe
             print(f"Sinusoidal PE applied - Input shape: {x.shape} | PE scale: {self.rpe_scale.item():.6f}")
             print(f"PE - mean: {pe.mean().item():.6f} | max: {pe.max().item():.6f} | min: {pe.min().item():.6f}")
             
@@ -257,31 +257,35 @@ class MS_SPS(nn.Module):
 
         x = self.rpe_bn(x)
         x = (x + x_feat).reshape(T, B, -1, H // ratio, W // ratio).contiguous()
-        H, W = H // self.patch_size[0], W // self.patch_size[1]
-        return x, (H, W), hook
 
 
 def get_sinusoidal_encoding(H, W, C, device):
-    """Most robust vectorized implementation"""
-    # Create position matrices
-    pos_h = torch.arange(H, dtype=torch.float32, device=device).unsqueeze(1).unsqueeze(2)  # [H, 1, 1]
-    pos_w = torch.arange(W, dtype=torch.float32, device=device).unsqueeze(0).unsqueeze(2)  # [1, W, 1]
+    """Traditional Transformer-style 2D sinusoidal position encoding"""
+    # Create position indices
+    position_h = torch.arange(H, dtype=torch.float32, device=device).unsqueeze(1)  # [H, 1]
+    position_w = torch.arange(W, dtype=torch.float32, device=device).unsqueeze(0)  # [1, W]
     
-    # Initialize PE tensor
+    # Calculate dimension for each axis (split channels equally)
+    dim_h = C // 2
+    dim_w = C - dim_h
+    
+    # Create frequency matrix for height dimension
+    div_term_h = torch.exp(torch.arange(0, dim_h, 2, dtype=torch.float32, device=device) * 
+                          -(math.log(10000.0) / dim_h))
+    
+    # Create frequency matrix for width dimension  
+    div_term_w = torch.exp(torch.arange(0, dim_w, 2, dtype=torch.float32, device=device) * 
+                          -(math.log(10000.0) / dim_w))
+    
+    # Initialize position encoding tensor
     pe = torch.zeros(H, W, C, dtype=torch.float32, device=device)
     
-    # Fill first half with height-based encoding
-    for i in range(0, C // 2, 2):
-        freq = math.pow(10000.0, -i / (C // 2))
-        pe[:, :, i] = torch.sin(pos_h.squeeze(-1) * freq).expand(-1, W)
-        if i + 1 < C // 2:
-            pe[:, :, i + 1] = torch.cos(pos_h.squeeze(-1) * freq).expand(-1, W)
+    # Height encoding (first half of channels)
+    pe[:, :, 0:dim_h:2] = torch.sin(position_h * div_term_h).unsqueeze(1).expand(-1, W, -1)
+    pe[:, :, 1:dim_h:2] = torch.cos(position_h * div_term_h).unsqueeze(1).expand(-1, W, -1)
     
-    # Fill second half with width-based encoding
-    for i in range(C // 2, C, 2):
-        freq = math.pow(10000.0, -(i - C // 2) / (C - C // 2))
-        pe[:, :, i] = torch.sin(pos_w.squeeze(-1) * freq).expand(H, -1)
-        if i + 1 < C:
-            pe[:, :, i + 1] = torch.cos(pos_w.squeeze(-1) * freq).expand(H, -1)
+    # Width encoding (second half of channels)
+    pe[:, :, dim_h::2] = torch.sin(position_w * div_term_w).unsqueeze(0).expand(H, -1, -1)
+    pe[:, :, dim_h+1::2] = torch.cos(position_w * div_term_w).unsqueeze(0).expand(H, -1, -1)
     
     return pe.permute(2, 0, 1)  # [C, H, W]

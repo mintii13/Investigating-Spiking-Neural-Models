@@ -24,7 +24,7 @@ use_conv_as_linear: true
 pooling_stat: "0011"
 time_steps: 4
 layer: 2
-dim: 256
+dim: 512
 mlp_ratio: 4
 
 # Augmentation & regularization parameters
