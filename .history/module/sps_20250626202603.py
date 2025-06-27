@@ -247,8 +247,8 @@ class MS_SPS(nn.Module):
             pos_embed = torch.cat([pos_h, pos_w], dim=1)  # [1, C, H, W]
             pos_embed = pos_embed.expand(TB, -1, -1, -1)  # [TB, C, H, W]
             x = x + pos_embed
-            # print(f"Learnable PE applied - Used spatial size: H={H_cur}, W={W_cur}")
-            # print(f"PE - mean: {pos_embed.mean().item():.6f} | max: {pos_embed.max().item():.6f} | min: {pos_embed.min().item():.6f}")
+            print(f"Learnable PE applied - Used spatial size: H={H_cur}, W={W_cur}")
+            print(f"PE - mean: {pos_embed.mean().item():.6f} | max: {pos_embed.max().item():.6f} | min: {pos_embed.min().item():.6f}")
             
         elif self.rpe_mode == "dilated":
             # Option 4: Dilated Conv

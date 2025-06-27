@@ -240,7 +240,7 @@ def run_energy_analysis_full(models, test_loader):
         return None
 
 def run_spike_visualization_full(models, test_loader):
-    """Run comprehensive spike pattern visualization on full dataset"""
+    """Run comprehensive spike pattern visualization on full dataset - NO SPARSITY"""
     print("\n" + "="*80)
     print("COMPREHENSIVE SPIKE PATTERN VISUALIZATION (FULL DATASET)")
     print("="*80)
@@ -273,7 +273,7 @@ def run_spike_visualization_full(models, test_loader):
             print("No spike data collected!")
             return None
         
-        # Create visualizations
+        # Create visualizations - BỎ SPARSITY ANALYSIS
         print(f"\nCreating comprehensive visualizations...")
         
         import matplotlib
@@ -294,7 +294,8 @@ def run_spike_visualization_full(models, test_loader):
             fig2.savefig('spike_layer_activity.png', dpi=300, bbox_inches='tight')
             plt.close(fig2)
         
-        # # 3. Sparsity analysis
+        # BỎ SPARSITY ANALYSIS
+        # 3. Sparsity analysis - REMOVED
         # print("   Creating sparsity analysis...")
         # fig3 = visualizer.plot_spike_sparsity_analysis(all_spike_data)
         # if fig3:
@@ -316,7 +317,7 @@ def run_spike_visualization_full(models, test_loader):
         print(f"Files saved:")
         print(f"   - spike_firing_rates.png")
         print(f"   - spike_layer_activity.png") 
-        # print(f"   - spike_sparsity.png")
+        # print(f"   - spike_sparsity.png")  # REMOVED
         print(f"   - spike_pattern_summary_full.csv")
         
         return all_spike_data, summary_df
@@ -383,7 +384,7 @@ def main():
     print(f"🧠 Spike Analysis:")
     print(f"   - spike_firing_rates.png")
     print(f"   - spike_layer_activity.png")
-    # print(f"   - spike_sparsity.png") 
+    # print(f"   - spike_sparsity.png")  # REMOVED
     print(f"   - spike_pattern_summary_full.csv")
     
     print(f"\nAll analyses completed successfully!")

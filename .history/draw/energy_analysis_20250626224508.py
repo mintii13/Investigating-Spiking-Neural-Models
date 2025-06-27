@@ -121,8 +121,8 @@ class QuickEnergyAnalyzer:
             'energy_per_param': total_energy / max(total_params, 1)
         }
     
-    def measure_inference_time(self, model, data_loader):
-        """Đo thời gian inference trên TOÀN BỘ dataset để công bằng"""
+    def measure_inference_time(self, model, data_loader, num_batches=50):
+        """Đo thời gian inference với proper state management"""
         model.eval()
         times = []
         
@@ -140,12 +140,15 @@ class QuickEnergyAnalyzer:
                 except:
                     continue
         
-        # Actual timing trên TOÀN BỘ dataset
-        print(f"   Measuring inference time on FULL dataset ({len(data_loader)} batches)...")
+        # Actual timing
+        print(f"   Measuring inference time on {num_batches} batches...")
         
         with torch.no_grad():
             successful_timings = 0
             for batch_idx, (data, targets) in enumerate(data_loader):
+                if successful_timings >= num_batches:
+                    break
+                
                 try:
                     # Reset before timing
                     functional.reset_net(model)
@@ -164,9 +167,9 @@ class QuickEnergyAnalyzer:
                     times.append(end_time - start_time)
                     successful_timings += 1
                     
-                    # Progress indicator every 50 batches
-                    if batch_idx % 50 == 0:
-                        print(f"     Timed {batch_idx + 1}/{len(data_loader)} batches...")
+                    # Progress indicator
+                    if successful_timings % 10 == 0:
+                        print(f"     Timed {successful_timings} batches...")
                         
                 except Exception as e:
                     print(f"     Warning: Timing failed on batch {batch_idx}")
@@ -208,8 +211,8 @@ class QuickEnergyAnalyzer:
         energy_stats = self.estimate_energy(spike_rates, model)
         print(f"   Energy estimation completed")
         
-        # 3. Timing analysis - BỎ num_batches parameter
-        timing_stats = self.measure_inference_time(model, data_loader)
+        # 3. Timing analysis
+        timing_stats = self.measure_inference_time(model, data_loader, num_batches=50)
         print(f"   Timing analysis completed on {timing_stats['total_batches_tested']} batches")
         
         # 4. Model statistics
@@ -252,7 +255,7 @@ def plot_efficiency_comparison(results):
     # 1. Spike rates - bỏ note "(Full Dataset)"
     bars1 = axes[0, 0].bar(models, spike_rates, color=colors[:len(models)])
     axes[0, 0].set_ylabel('Average Spike Rate')
-    axes[0, 0].set_title('Spike Activity Comparison')  # Bỏ "(Full Dataset)"
+    axes[0, 0].set_title('Spike Activity Comparison') 
     axes[0, 0].grid(True, alpha=0.3)
     
     for bar, val in zip(bars1, spike_rates):
@@ -261,14 +264,13 @@ def plot_efficiency_comparison(results):
     
     # 2. Energy - KHÔNG dùng log scale, hiển thị bình thường
     bars2 = axes[0, 1].bar(models, energies, color=colors[:len(models)])
-    axes[0, 1].set_ylabel('Estimated Energy')  # Bỏ "(log scale)"
-    axes[0, 1].set_title('Energy Consumption')  # Bỏ "(Full Dataset)"
-    # axes[0, 1].set_yscale('log')  # BỎ dòng này
+    axes[0, 1].set_ylabel('Estimated Energy') 
+    axes[0, 1].set_title('Energy Consumption') 
     axes[0, 1].grid(True, alpha=0.3)
     
-    # Thêm giá trị energy lên các cột - FIX POSITIONING
+    # Thêm giá trị energy lên các cột
     for bar, val in zip(bars2, energies):
-        axes[0, 1].text(bar.get_x() + bar.get_width()/2, bar.get_height() + max(energies)*0.02,
+        axes[0, 1].text(bar.get_x() + bar.get_width()/2, bar.get_height() + val*0.01,
                        f'{val:.2e}', ha='center', va='bottom', fontsize=9)
     
     # 3. FPS

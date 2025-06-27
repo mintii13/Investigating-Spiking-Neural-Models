@@ -237,7 +237,7 @@ parser.add_argument(
 )
 parser.add_argument(
     "--resume",
-    default=r"",
+    default=r"D:\FPTU-sourse\Term4\ResFes\Spike-Driven-Transformer_newSPS\output\train\20250626-095928-sdt-data-cifar10-t-4-spike-if_soft-rpe-linear\last.pth.tar",
     type=str,
     metavar="PATH",
     help="Resume full model and optimizer state from checkpoint (default: none)",

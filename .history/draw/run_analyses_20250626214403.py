@@ -294,12 +294,12 @@ def run_spike_visualization_full(models, test_loader):
             fig2.savefig('spike_layer_activity.png', dpi=300, bbox_inches='tight')
             plt.close(fig2)
         
-        # # 3. Sparsity analysis
-        # print("   Creating sparsity analysis...")
-        # fig3 = visualizer.plot_spike_sparsity_analysis(all_spike_data)
-        # if fig3:
-        #     fig3.savefig('spike_sparsity.png', dpi=300, bbox_inches='tight')
-        #     plt.close(fig3)
+        # 3. Sparsity analysis
+        print("   Creating sparsity analysis...")
+        fig3 = visualizer.plot_spike_sparsity_analysis(all_spike_data)
+        if fig3:
+            fig3.savefig('spike_sparsity.png', dpi=300, bbox_inches='tight')
+            plt.close(fig3)
         
         # 4. Summary statistics
         print("   Generating summary statistics...")
@@ -316,7 +316,7 @@ def run_spike_visualization_full(models, test_loader):
         print(f"Files saved:")
         print(f"   - spike_firing_rates.png")
         print(f"   - spike_layer_activity.png") 
-        # print(f"   - spike_sparsity.png")
+        print(f"   - spike_sparsity.png")
         print(f"   - spike_pattern_summary_full.csv")
         
         return all_spike_data, summary_df
@@ -383,7 +383,7 @@ def main():
     print(f"🧠 Spike Analysis:")
     print(f"   - spike_firing_rates.png")
     print(f"   - spike_layer_activity.png")
-    # print(f"   - spike_sparsity.png") 
+    print(f"   - spike_sparsity.png") 
     print(f"   - spike_pattern_summary_full.csv")
     
     print(f"\nAll analyses completed successfully!")

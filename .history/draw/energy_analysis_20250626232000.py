@@ -121,8 +121,8 @@ class QuickEnergyAnalyzer:
             'energy_per_param': total_energy / max(total_params, 1)
         }
     
-    def measure_inference_time(self, model, data_loader):
-        """Đo thời gian inference trên TOÀN BỘ dataset để công bằng"""
+    def measure_inference_time(self, model, data_loader, num_batches=50):
+        """Đo thời gian inference với proper state management"""
         model.eval()
         times = []
         
@@ -140,12 +140,15 @@ class QuickEnergyAnalyzer:
                 except:
                     continue
         
-        # Actual timing trên TOÀN BỘ dataset
-        print(f"   Measuring inference time on FULL dataset ({len(data_loader)} batches)...")
+        # Actual timing
+        print(f"   Measuring inference time on {num_batches} batches...")
         
         with torch.no_grad():
             successful_timings = 0
             for batch_idx, (data, targets) in enumerate(data_loader):
+                if successful_timings >= num_batches:
+                    break
+                
                 try:
                     # Reset before timing
                     functional.reset_net(model)
@@ -164,9 +167,9 @@ class QuickEnergyAnalyzer:
                     times.append(end_time - start_time)
                     successful_timings += 1
                     
-                    # Progress indicator every 50 batches
-                    if batch_idx % 50 == 0:
-                        print(f"     Timed {batch_idx + 1}/{len(data_loader)} batches...")
+                    # Progress indicator
+                    if successful_timings % 10 == 0:
+                        print(f"     Timed {successful_timings} batches...")
                         
                 except Exception as e:
                     print(f"     Warning: Timing failed on batch {batch_idx}")
@@ -208,8 +211,8 @@ class QuickEnergyAnalyzer:
         energy_stats = self.estimate_energy(spike_rates, model)
         print(f"   Energy estimation completed")
         
-        # 3. Timing analysis - BỎ num_batches parameter
-        timing_stats = self.measure_inference_time(model, data_loader)
+        # 3. Timing analysis
+        timing_stats = self.measure_inference_time(model, data_loader, num_batches=50)
         print(f"   Timing analysis completed on {timing_stats['total_batches_tested']} batches")
         
         # 4. Model statistics

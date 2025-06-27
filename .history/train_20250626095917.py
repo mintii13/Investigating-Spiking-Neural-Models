@@ -237,7 +237,7 @@ parser.add_argument(
 )
 parser.add_argument(
     "--resume",
-    default=r"",
+    default="",
     type=str,
     metavar="PATH",
     help="Resume full model and optimizer state from checkpoint (default: none)",
