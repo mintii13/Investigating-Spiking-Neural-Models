@@ -1207,7 +1207,7 @@ def main():
             batch_size=args.batch_size,
             repeats=args.epoch_repeats,
             transform=transforms_train,
-            # download=True,
+            download=True,
         )
         dataset_eval = create_dataset(
             args.dataset,
