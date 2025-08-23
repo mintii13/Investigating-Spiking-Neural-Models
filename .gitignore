@@ -9,4 +9,4 @@ pretrain.py
 *.tar
 *.npy
 *.zip
-.history
+.history/
