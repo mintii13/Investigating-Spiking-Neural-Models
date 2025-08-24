@@ -19,7 +19,7 @@ def load_your_models():
     # Update paths này với actual checkpoint paths của bạn
     model_configs = {
         'LIF': {
-            'checkpoint': r'D:\FPTU-sourse\Term4\ResFes\Spike-Driven-Transformer_newSPS\Trained\Origin\Ori_b64\model_best.pth.tar',
+            'checkpoint': r'D:\FPTU-sourse\Term5\FETC\Spike-Driven-Transformer_newSPS\Trained\Origin\Ori_b64\model_best.pth.tar',
             'config': {
                 'img_size_h': 32,
                 'img_size_w': 32,
@@ -36,7 +36,7 @@ def load_your_models():
             }
         },
         'IF_Hard': {
-            'checkpoint': r'D:\FPTU-sourse\Term4\ResFes\Spike-Driven-Transformer_newSPS\Trained\IF_hard\b64_Uth1_2\model_best.pth.tar',
+            'checkpoint': r'D:\FPTU-sourse\Term5\FETC\Spike-Driven-Transformer_newSPS\Trained\IF_hard\b64_Uth1_2\model_best.pth.tar',
             'config': {
                 'img_size_h': 32,
                 'img_size_w': 32,
@@ -53,7 +53,7 @@ def load_your_models():
             }
         },
         'IF_Soft': {
-            'checkpoint': r'D:\FPTU-sourse\Term4\ResFes\Spike-Driven-Transformer_newSPS\Trained\IF_soft\b64_Uth1_2\model_best.pth.tar',
+            'checkpoint': r'D:\FPTU-sourse\Term5\FETC\Spike-Driven-Transformer_newSPS\Trained\IF_soft\b64_Uth1_2\model_best.pth.tar',
             'config': {
                 'img_size_h': 32,
                 'img_size_w': 32,

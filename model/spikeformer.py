@@ -108,7 +108,7 @@ class SpikeDrivenTransformer(nn.Module):
                 init_tau=2.0, detach_reset=True, backend="cupy"
             )
         elif spike_mode == "if":
-            self.head_lif = MultiStepIFNode(v_threshold=1.2, v_reset=v_reset, detach_reset=True, backend="cupy")
+            self.head_lif = MultiStepIFNode(v_threshold=1.0, v_reset=v_reset, detach_reset=True, backend="cupy")
         elif spike_mode == "if_soft":
             self.head_lif = MultiStepIFNode(v_threshold=1.0, v_reset=None, detach_reset=True, backend="cupy")
         elif spike_mode == "if_learnable":

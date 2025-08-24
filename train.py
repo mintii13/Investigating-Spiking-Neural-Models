@@ -206,7 +206,7 @@ parser.add_argument(
 )
 parser.add_argument(
     "--rpe-mode",
-    default="dilated",
+    default="conv",
     type=str,
     help="RPE mode: conv, linear, sinusoidal, learnable, dilated",
 )
