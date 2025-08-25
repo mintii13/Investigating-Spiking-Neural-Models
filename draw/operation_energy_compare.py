@@ -1,3 +1,7 @@
+# operation_energy_snn_compare.py - Paper 1 methodology for SNN comparison
+# Based on "A Little Energy Goes a Long Way" Equations (13) and (14)
+# Compare 3 spike modes: LIF, IF_Hard, IF_Soft
+
 import sys
 import os
 import torch
@@ -33,7 +37,7 @@ class Paper1EnergyAnalyzer:
         - f^n_out: number of output connections of layer n
         - s^n: average number of spikes per neuron of layer n
         """
-        print(f"\n--- Analyzing {model_name} (Paper 1 Equation 14) ---")
+        print(f"\n--- Analyzing {model_name} ---")
         
         # Step 1: Get f^n_out for each layer
         layer_connections = self._get_output_connections(model)
@@ -85,23 +89,20 @@ class Paper1EnergyAnalyzer:
                     'synaptic_ops': layer_synaptic_ops
                 })
                 
-                print(f"     {spike_layer_name} -> {connection_layer}: f_out={f_out}, s_n={s_n:.4f}, ops={layer_synaptic_ops:.0f}")
+                print(f"     {spike_layer_name}: f_out={f_out}, s_n={s_n:.4f}, ops={layer_synaptic_ops:.0f}")
             else:
                 print(f"     WARNING: No connection found for {spike_layer_name}")
         
-        # Convert to MOps (Million Operations) as used in Paper 1
-        total_mops = total_synaptic_ops / 1_000_000
+        # Convert to synaptic operations only (remove MOps)
         
         print(f"   DEBUG - Connection layers: {list(layer_connections.keys())[:5]}...")  # Show first 5
         print(f"   DEBUG - Spike layers: {list(spike_stats.keys())[:5]}...")  # Show first 5
         
         print(f"   Total Synaptic Operations: {total_synaptic_ops:,.0f}")
-        print(f"   Total Energy: {total_mops:.2f} MOps")
         
         return {
             'model_name': model_name,
             'total_synaptic_operations': total_synaptic_ops,
-            'total_mops': total_mops,
             'layer_details': layer_details,
             'spike_statistics': spike_stats,
             'timesteps': T
@@ -209,8 +210,8 @@ class Paper1EnergyAnalyzer:
                         print(f"     Processed {batch_idx + 1} batches...")
                     
                     # Limit batches for reasonable measurement time
-                    if batch_idx >= 100:  # Process more batches for accurate measurement
-                        break
+                    # if batch_idx >= 100:  # Process more batches for accurate measurement
+                    #     break
                         
                 except Exception as e:
                     print(f"     Warning: Batch {batch_idx} failed: {str(e)[:100]}")
@@ -243,10 +244,10 @@ class Paper1EnergyAnalyzer:
         return spike_statistics
     
     def compare_spike_modes(self, models, data_loader):
-        """Compare energy consumption of different spike modes using Paper 1 methodology"""
+        """Compare energy consumption of different spike modes"""
         print("=" * 80)
-        print("PAPER 1 METHODOLOGY: SNN ENERGY COMPARISON")
-        print("Equation (14): Synaptic operations = Σ(t=1 to T) Σ(n=1 to N) f^n_out × s^n")
+        print("SNN ENERGY COMPARISON")
+        print("Synaptic operations = Σ(t=1 to T) Σ(n=1 to N) f^n_out × s^n")
         print("=" * 80)
         
         results = {}
@@ -266,28 +267,30 @@ class Paper1EnergyAnalyzer:
         
         # Create comparison summary
         print("\n" + "=" * 80)
-        print("ENERGY COMPARISON SUMMARY (Paper 1 Format)")
+        print("ENERGY COMPARISON SUMMARY")
         print("=" * 80)
         
         comparison_data = []
+        total_samples = 10000
         for model_name, result in results.items():
+            per_sample_ops = result['total_synaptic_operations'] / total_samples
             comparison_data.append({
                 'Model': model_name,
-                'Synaptic_Operations': f"{result['total_synaptic_operations']:,.0f}",
-                'Energy_MOps': f"{result['total_mops']:.2f}",
+                'Synaptic_Operations': result['total_synaptic_operations'],
+                'Operations_Per_Sample': f"{per_sample_ops:.1f}",
                 'Timesteps': result['timesteps'],
                 'Num_Spiking_Layers': len(result['spike_statistics'])
             })
         
         # Find most efficient model
-        min_energy = min(results.values(), key=lambda x: x['total_mops'])
-        max_energy = max(results.values(), key=lambda x: x['total_mops'])
+        min_energy = min(results.values(), key=lambda x: x['total_synaptic_operations'])
+        max_energy = max(results.values(), key=lambda x: x['total_synaptic_operations'])
         
-        print(f"Most Energy Efficient: {min_energy['model_name']} ({min_energy['total_mops']:.2f} MOps)")
-        print(f"Least Energy Efficient: {max_energy['model_name']} ({max_energy['total_mops']:.2f} MOps)")
+        print(f"Most Energy Efficient: {min_energy['model_name']} ({min_energy['total_synaptic_operations']:,} operations)")
+        print(f"Least Energy Efficient: {max_energy['model_name']} ({max_energy['total_synaptic_operations']:,} operations)")
         
-        if max_energy['total_mops'] > 0:
-            efficiency_gain = max_energy['total_mops'] / min_energy['total_mops']
+        if min_energy['total_synaptic_operations'] > 0:
+            efficiency_gain = max_energy['total_synaptic_operations'] / min_energy['total_synaptic_operations']
             print(f"Energy Efficiency Gain: {efficiency_gain:.2f}x")
         
         # Print detailed comparison table
@@ -298,41 +301,30 @@ class Paper1EnergyAnalyzer:
         return results
     
     def create_energy_visualization(self, results):
-        """Create visualizations following Paper 1 style"""
         if not results:
             return
         
         models = list(results.keys())
-        energies = [results[m]['total_mops'] for m in models]
-        operations = [results[m]['total_synaptic_operations'] for m in models]
+        total_samples = 10000  # or len(test_loader.dataset)
         
-        fig, (ax1, ax2) = plt.subplots(1, 2, figsize=(15, 6))
+        # Calculate per-sample operations
+        operations_per_sample = [results[m]['total_synaptic_operations'] / total_samples for m in models]
         
-        # Energy comparison (MOps)
+        fig, ax = plt.subplots(1, 1, figsize=(10, 6))
+        
         colors = ['#1f77b4', '#ff7f0e', '#2ca02c']
-        bars1 = ax1.bar(models, energies, color=colors[:len(models)])
-        ax1.set_ylabel('Energy Consumption (MOps)')
-        ax1.set_title('SNN Energy Comparison\n(Paper 1 Equation 14)')
-        ax1.grid(True, alpha=0.3)
+        bars = ax.bar(models, operations_per_sample, color=colors[:len(models)])
+        ax.set_ylabel('Synaptic Operations per Sample')  # Thay đổi label
+        ax.set_title('SNN Energy Comparison (Per Sample)')  # Thay đổi title
+        ax.grid(True, alpha=0.3)
         
-        # Add values on bars
-        for bar, val in zip(bars1, energies):
-            ax1.text(bar.get_x() + bar.get_width()/2, bar.get_height() + max(energies)*0.01,
-                    f'{val:.2f}', ha='center', va='bottom', fontweight='bold')
-        
-        # Operations comparison
-        bars2 = ax2.bar(models, operations, color=colors[:len(models)])
-        ax2.set_ylabel('Synaptic Operations')
-        ax2.set_title('Total Synaptic Operations\n(Σ f_out × s_n × T)')
-        ax2.grid(True, alpha=0.3)
-        
-        # Add values on bars
-        for bar, val in zip(bars2, operations):
-            ax2.text(bar.get_x() + bar.get_width()/2, bar.get_height() + max(operations)*0.01,
-                    f'{val:,.0f}', ha='center', va='bottom', fontweight='bold', fontsize=9)
-        
+        # Add values on bars - hiển thị số per sample
+        for bar, val in zip(bars, operations_per_sample):
+            ax.text(bar.get_x() + bar.get_width()/2, bar.get_height() + max(operations_per_sample)*0.01,
+                    f'{val:.1f}', ha='center', va='bottom')  # Format số thập phân
+            
         plt.tight_layout()
-        plt.savefig('paper1_snn_energy_comparison.png', dpi=300, bbox_inches='tight')
+        plt.savefig('snn_energy_comparison.png', dpi=300, bbox_inches='tight')
         plt.close()
         
         print(f"\nVisualization saved as 'paper1_snn_energy_comparison.png'")
@@ -357,17 +349,15 @@ class Paper1EnergyAnalyzer:
             summary_data.append({
                 'Model': model_name,
                 'Total_Synaptic_Operations': result['total_synaptic_operations'],
-                'Energy_MOps': result['total_mops'],
                 'Timesteps': result['timesteps'],
-                'Num_Spiking_Layers': len(result['spike_statistics']),
-                'Method': 'Paper1_Equation14'
+                'Num_Spiking_Layers': len(result['spike_statistics'])
             })
         
         summary_df = pd.DataFrame(summary_data)
         summary_filename = filename.replace('.csv', '_summary.csv')
         summary_df.to_csv(summary_filename, index=False)
         
-        print(f"\nDetailed results saved:")
+        print(f"\nResults saved:")
         print(f"   - Layer details: {filename}")
         print(f"   - Summary: {summary_filename}")
 
@@ -499,11 +489,10 @@ def setup_data_loader():
 
 
 def main():
-    """Main function following Paper 1 methodology"""
+    """Main function"""
     
-    print("PAPER 1 ENERGY ANALYSIS: SNN SPIKE MODE COMPARISON")
+    print("SNN SPIKE MODE ENERGY COMPARISON")
     print("=" * 80)
-    print("Implementing Equation (14) from 'A Little Energy Goes a Long Way'")
     print("Comparing LIF vs IF_Hard vs IF_Soft spike modes")
     print("=" * 80)
     
@@ -517,7 +506,7 @@ def main():
     
     print(f"\nSuccessfully loaded {len(models)} models: {list(models.keys())}")
     
-    # Run Paper 1 energy analysis
+    # Run energy analysis
     analyzer = Paper1EnergyAnalyzer()
     results = analyzer.compare_spike_modes(models, test_loader)
     
@@ -526,16 +515,15 @@ def main():
         analyzer.create_energy_visualization(results)
         
         # Save detailed results
-        analyzer.save_detailed_results(results, 'paper1_spike_mode_comparison.csv')
+        analyzer.save_detailed_results(results, 'spike_mode_energy_comparison.csv')
         
         print("\n" + "=" * 80)
-        print("PAPER 1 ANALYSIS COMPLETE!")
+        print("ANALYSIS COMPLETE!")
         print("=" * 80)
         print("Files generated:")
-        print("   - paper1_snn_energy_comparison.png")
-        print("   - paper1_spike_mode_comparison.csv")
-        print("   - paper1_spike_mode_comparison_summary.csv")
-        print("\nResults based on exact Paper 1 methodology (Equation 14)")
+        print("   - snn_energy_comparison.png")
+        print("   - spike_mode_energy_comparison.csv")
+        print("   - spike_mode_energy_comparison_summary.csv")
     
     return results
 

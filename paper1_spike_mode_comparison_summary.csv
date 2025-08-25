@@ -1,4 +1,0 @@
-Model,Total_Synaptic_Operations,Energy_MOps,Timesteps,Num_Spiking_Layers,Method
-LIF,138660.9510365099,0.1386609510365099,4,16,Paper1_Equation14
-IF_Hard,179198.21132425746,0.17919821132425745,4,16,Paper1_Equation14
-IF_Soft,230902.94786509898,0.230902947865099,4,16,Paper1_Equation14
