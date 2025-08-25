@@ -50,10 +50,10 @@ class MS_SPS(nn.Module):
             )
         elif spike_mode == "if":
             print("spike_mode = if_hard")
-            self.proj_lif = MultiStepIFNode(v_threshold=0.8, v_reset=v_reset, detach_reset=True, backend="cupy")
+            self.proj_lif = MultiStepIFNode(v_threshold=1.2, v_reset=v_reset, detach_reset=True, backend="cupy")
         elif spike_mode == "if_soft":
             print("spike_mode = if_soft")
-            self.proj_lif = MultiStepIFNode(v_threshold=0.8, v_reset=None, detach_reset=True, backend="cupy")
+            self.proj_lif = MultiStepIFNode(v_threshold=1.2, v_reset=None, detach_reset=True, backend="cupy")
         elif spike_mode == "if_learnable":
             print("spike_mode = if_learnable")
             self.proj_lif = MultiStepLearnableIFNode(init_threshold=1.0, v_reset=None, detach_reset=True)
@@ -81,9 +81,9 @@ class MS_SPS(nn.Module):
                 init_tau=2.0, detach_reset=True, backend="cupy"
             )
         elif spike_mode == "if":
-            self.proj_lif1 = MultiStepIFNode(v_threshold=0.8, v_reset=v_reset, detach_reset=True, backend="cupy")
+            self.proj_lif1 = MultiStepIFNode(v_threshold=1.2, v_reset=v_reset, detach_reset=True, backend="cupy")
         elif spike_mode == "if_soft":
-            self.proj_lif1 = MultiStepIFNode(v_threshold=0.8, v_reset=None, detach_reset=True, backend="cupy")
+            self.proj_lif1 = MultiStepIFNode(v_threshold=1.2, v_reset=None, detach_reset=True, backend="cupy")
         elif spike_mode == "if_learnable":
             self.proj_lif1 = MultiStepLearnableIFNode(init_threshold=1.0, v_reset=None, detach_reset=True)
           
@@ -110,9 +110,9 @@ class MS_SPS(nn.Module):
                 init_tau=2.0, detach_reset=True, backend="cupy"
             )
         elif spike_mode == "if":
-            self.proj_lif2 = MultiStepIFNode(v_threshold=0.8, v_reset=v_reset, detach_reset=True, backend="cupy")
+            self.proj_lif2 = MultiStepIFNode(v_threshold=1.2, v_reset=v_reset, detach_reset=True, backend="cupy")
         elif spike_mode == "if_soft":
-            self.proj_lif2 = MultiStepIFNode(v_threshold=0.8, v_reset=None, detach_reset=True, backend="cupy")
+            self.proj_lif2 = MultiStepIFNode(v_threshold=1.2, v_reset=None, detach_reset=True, backend="cupy")
         elif spike_mode == "if_learnable":
             self.proj_lif2 = MultiStepLearnableIFNode(init_threshold=1.0, v_reset=None, detach_reset=True)
 
@@ -134,9 +134,9 @@ class MS_SPS(nn.Module):
                 init_tau=2.0, detach_reset=True, backend="cupy"
             )
         elif spike_mode == "if":
-            self.proj_lif3 = MultiStepIFNode(v_threshold=0.8, v_reset=v_reset, detach_reset=True, backend="cupy")
+            self.proj_lif3 = MultiStepIFNode(v_threshold=1.2, v_reset=v_reset, detach_reset=True, backend="cupy")
         elif spike_mode == "if_soft":
-            self.proj_lif3 = MultiStepIFNode(v_threshold=0.8, v_reset=None, detach_reset=True, backend="cupy")
+            self.proj_lif3 = MultiStepIFNode(v_threshold=1.2, v_reset=None, detach_reset=True, backend="cupy")
         elif spike_mode == "if_learnable":
             self.proj_lif3 = MultiStepLearnableIFNode(init_threshold=1.0, v_reset=None, detach_reset=True)
           
@@ -167,9 +167,9 @@ class MS_SPS(nn.Module):
                 init_tau=2.0, detach_reset=True, backend="cupy"
             )
         elif spike_mode == "if":
-            self.rpe_lif = MultiStepIFNode(v_threshold=0.8, v_reset=v_reset, detach_reset=True, backend="cupy")
+            self.rpe_lif = MultiStepIFNode(v_threshold=1.2, v_reset=v_reset, detach_reset=True, backend="cupy")
         elif spike_mode == "if_soft":
-            self.rpe_lif = MultiStepIFNode(v_threshold=0.8, v_reset=None, detach_reset=True, backend="cupy")
+            self.rpe_lif = MultiStepIFNode(v_threshold=1.2, v_reset=None, detach_reset=True, backend="cupy")
         elif spike_mode == "if_learnable":
             self.rpe_lif = MultiStepLearnableIFNode(init_threshold=1.0, v_reset=None, detach_reset=True)
 
