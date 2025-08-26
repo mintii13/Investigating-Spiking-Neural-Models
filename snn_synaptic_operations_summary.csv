@@ -1,0 +1,4 @@
+Model,Total_Synaptic_Operations,Timesteps,Spiking_Layers
+LIF,183311.93881381585,4,16
+IF_Hard,317231.8475841973,4,16
+IF_Soft,408548.637061561,4,16
