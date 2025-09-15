@@ -81,7 +81,7 @@ python firing_num.py -c /the/path/of/conf --model sdt --spike-mode if_soft --res
 
 ## Model Checkpoints
 
-The trained model checkpoints and detailed experimental results reported in the paper are available at:
+The trained model checkpoints according to detailed experimental results reported in the paper are available at:
 **[Google Drive - Model Checkpoints](https://drive.google.com/drive/folders/1uWTPokbWw6EMd80KUTwjU8wVAnarxP_T?usp=sharing)**
 
 This repository contains:
