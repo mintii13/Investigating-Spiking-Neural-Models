@@ -24,7 +24,7 @@ tensorboard == 2.14.0
 
 ## Comparison of Methods with Spike Neuron Models
 
-| Spike Neuron Model | $u_{th}$ | $V_{reset}$ | Beta ($\beta$) |          Accuracy (%)       |
+| Spike Neuron Model | $u_{th}$ | $V_{reset}$ | Beta ($\beta$) |          Accuracy (%) |     |
 |--------------------|----------|-------------|----------------|--------------|--------------|
 |                    |          |             |                | **CIFAR-10** | **CIFAR-100**|
 | LIF                | 1        |      0      |      1/2       | 94.34        | 76.00        |
