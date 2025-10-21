@@ -33,7 +33,7 @@ spike_mode: if_soft
 
 # RPE (Relative Position Encoding) mode configuration
 # Options: "conv", "linear", "sinusoidal", "learnable", "dilated"
-rpe_mode: linear
+rpe_mode: conv
 
 # Augmentation & regularization parameters
 aa: rand-m9-n1-mstd0.4-inc1

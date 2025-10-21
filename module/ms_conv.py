@@ -46,11 +46,11 @@ class MS_MLP_Conv(nn.Module):
                 init_tau=2.0, detach_reset=True, backend="cupy"
             )
         elif spike_mode == "if":
-            self.fc1_lif = MultiStepIFNode(v_threshold=0.8, v_reset=v_reset, detach_reset=True, backend="cupy")
-            self.fc2_lif = MultiStepIFNode(v_threshold=0.8, v_reset=v_reset, detach_reset=True, backend="cupy")
+            self.fc1_lif = MultiStepIFNode(v_threshold=1.0, v_reset=v_reset, detach_reset=True, backend="cupy")
+            self.fc2_lif = MultiStepIFNode(v_threshold=1.0, v_reset=v_reset, detach_reset=True, backend="cupy")
         elif spike_mode == "if_soft":
-            self.fc1_lif = MultiStepIFNode(v_threshold=0.8, v_reset=None, detach_reset=True, backend="cupy")
-            self.fc2_lif = MultiStepIFNode(v_threshold=0.8, v_reset=None, detach_reset=True, backend="cupy")
+            self.fc1_lif = MultiStepIFNode(v_threshold=1.0, v_reset=None, detach_reset=True, backend="cupy")
+            self.fc2_lif = MultiStepIFNode(v_threshold=1.0, v_reset=None, detach_reset=True, backend="cupy")
         elif spike_mode == "if_learnable":
             self.fc1_lif = MultiStepLearnableIFNode(init_threshold=1.0, v_reset=None, detach_reset=True)
             self.fc2_lif = MultiStepLearnableIFNode(init_threshold=1.0, v_reset=None, detach_reset=True)
@@ -126,10 +126,10 @@ class MS_SSA_Conv(nn.Module):
 
         # Initialize neurons based on spike_mode
         if spike_mode == "if":
-            self.shortcut_lif = MultiStepIFNode(v_threshold=0.8, v_reset=v_reset, detach_reset=True, backend="cupy")
-            self.q_lif = MultiStepIFNode(v_threshold=0.8, v_reset=v_reset, detach_reset=True, backend="cupy")
-            self.k_lif = MultiStepIFNode(v_threshold=0.8, v_reset=v_reset, detach_reset=True, backend="cupy")
-            self.v_lif = MultiStepIFNode(v_threshold=0.8, v_reset=v_reset, detach_reset=True, backend="cupy")
+            self.shortcut_lif = MultiStepIFNode(v_threshold=1.0, v_reset=v_reset, detach_reset=True, backend="cupy")
+            self.q_lif = MultiStepIFNode(v_threshold=1.0, v_reset=v_reset, detach_reset=True, backend="cupy")
+            self.k_lif = MultiStepIFNode(v_threshold=1.0, v_reset=v_reset, detach_reset=True, backend="cupy")
+            self.v_lif = MultiStepIFNode(v_threshold=1.0, v_reset=v_reset, detach_reset=True, backend="cupy")
             self.attn_lif = MultiStepIFNode(
                 v_reset=v_reset, v_threshold=0.5, detach_reset=True, backend="cupy"
             )
@@ -137,10 +137,10 @@ class MS_SSA_Conv(nn.Module):
                 v_reset=v_reset, v_threshold=0.5, detach_reset=True, backend="cupy"
             )
         elif spike_mode == "if_soft":
-            self.shortcut_lif = MultiStepIFNode(v_threshold=0.8, v_reset=None, detach_reset=True, backend="cupy")
-            self.q_lif = MultiStepIFNode(v_threshold=0.8, v_reset=None, detach_reset=True, backend="cupy")
-            self.k_lif = MultiStepIFNode(v_threshold=0.8, v_reset=None, detach_reset=True, backend="cupy")
-            self.v_lif = MultiStepIFNode(v_threshold=0.8, v_reset=None, detach_reset=True, backend="cupy")
+            self.shortcut_lif = MultiStepIFNode(v_threshold=1.0, v_reset=None, detach_reset=True, backend="cupy")
+            self.q_lif = MultiStepIFNode(v_threshold=1.0, v_reset=None, detach_reset=True, backend="cupy")
+            self.k_lif = MultiStepIFNode(v_threshold=1.0, v_reset=None, detach_reset=True, backend="cupy")
+            self.v_lif = MultiStepIFNode(v_threshold=1.0, v_reset=None, detach_reset=True, backend="cupy")
             self.attn_lif = MultiStepIFNode(
                 v_reset=None, v_threshold=0.5, detach_reset=True, backend="cupy"
             )
@@ -274,8 +274,8 @@ class MS_SSA_Conv(nn.Module):
             hook[self._get_name() + str(self.layer) + "_kv_before"] = kv
         if self.dvs:
             kv = self.pool(kv)
-        kv = kv.sum(dim=-2, keepdim=True)
-        kv = self.talking_heads_lif(kv)
+        # kv = kv.sum(dim=-2, keepdim=True)
+        # kv = self.talking_heads_lif(kv)
         if hook is not None:
             hook[self._get_name() + str(self.layer) + "_kv"] = kv.detach()
         x = q.mul(kv)
