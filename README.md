@@ -12,12 +12,23 @@ Spiking Neural Networks (SNNs) offer energy-efficient and biologically plausible
 
 ## Requirements
 
-```python3
-timm == 0.6.12
-pytorch == 2.4.1+cu121
-cupy == 12.3.0
-spikingjelly == 0.0.0.0.12
-tensorboard == 2.14.0
+```python3.8.20
+torch==2.4.1+cu121
+torchvision==0.19.1+cu121
+torchaudio==2.4.1+cu121
+timm==0.6.12
+cupy-cuda12x==12.3.0
+spikingjelly==0.0.0.0.12
+tensorboard==2.14.0
+tensorboardx==2.6.2.2
+torchinfo==1.8.0
+numpy==1.24.4
+pandas==2.0.3
+matplotlib==3.7.5
+seaborn==0.13.2
+scipy==1.10.1
+tqdm==4.67.1
+pyyaml==6.0.2
 ```
 
 > !!! Please install the spikingjelly and tensorboard correctly before raising issues about requirements. !!!
