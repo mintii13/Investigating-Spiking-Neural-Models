@@ -20,7 +20,7 @@ class MS_SPS(nn.Module):
         in_channels=2,
         embed_dims=256,
         pooling_stat="1111",
-        spike_mode="if_learnable",
+        spike_mode="if_soft",
         rpe_mode="conv",  # Add rpe_mode parameter
     ):
         super().__init__()
