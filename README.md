@@ -6,10 +6,6 @@ minhtringuyen130205@gmail.com, khanghvse184160@fpt.edu.vn, nguhcv@fe.edu.vn
 
 ---
 
-## Abstract
-
-Spiking Neural Networks (SNNs) offer energy-efficient and biologically plausible alternatives to conventional Artificial Neural Networks (ANNs). The Spike-driven Transformer architecture integrates SNN efficiency with the Transformer-based feature extraction, achieving competitive results for image classification. However, its reliance on the Leaky Integrate-and-Fire (LIF) neuron introduces computational overhead due to the leak mechanism. This work investigates alternative neuron models—**IF Hard Reset** and **IF Soft Reset**—which remove the leak dynamics to improve efficiency. We conduct systematic evaluations on CIFAR-10 and CIFAR-100 datasets, analyzing accuracy, inference speed, spike activity patterns and energy consumption across different neuron models. Experimental results show that **IF Soft Reset** achieves the highest accuracy at 94.53%, 76.56% compared to 94.44%, 76.15% of Hard Reset and 94.34%, 76.00% of LIF on CIFAR-10, CIFAR-100 respectively. It also has fastest inference speed as 1323.4 FPS and 12.09 ms latency, outperforming IF Hard Reset with 1244.2 FPS and LIF with 1161.2 FPS. The improvement is attributed to its gradual reset behavior, which preserves residual excitation and enhances temporal processing. These findings offer practical design guidelines for deploying efficient spike-based Transformers under resource-constrained environments.
-
 ## Requirements
 
 ```python3
